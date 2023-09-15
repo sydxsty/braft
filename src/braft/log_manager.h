@@ -67,7 +67,6 @@ public:
     private:
         friend class LogManager;
         friend class AppendBatcher;
-        friend class FollowerStableClosure;
         std::vector<LogEntry*> _entries;
     };
 

@@ -426,6 +426,17 @@ void LogManager::append_entries(
         return;
     }
 
+    if (_fsm_caller->on_follower_receive(*entries) == -1) {
+        lck.unlock();
+        // release entries
+        for (size_t i = 0; i < entries->size(); ++i) {
+            (*entries)[i]->Release();
+        }
+        entries->clear();
+        done->status().set_error(EPERM, "Wrong entries");
+        return run_closure_in_bthread(done);
+    }
+
     for (size_t i = 0; i < entries->size(); ++i) {
         // Add ref for disk_thread
         (*entries)[i]->AddRef();
@@ -441,7 +452,6 @@ void LogManager::append_entries(
     }
 
     done->_entries.swap(*entries);
-    // call FollowerStableClosure::run() (handle_append_entries_request)
     int ret = bthread::execution_queue_execute(_disk_queue, done);
     CHECK_EQ(0, ret) << "execq execute failed, ret: " << ret << " err: " << berror();
     wakeup_all_waiter(lck);
