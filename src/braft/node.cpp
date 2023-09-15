@@ -2347,6 +2347,12 @@ private:
         lck.unlock();
 
         // DON'T touch _node any more
+        if (_node->_fsm_caller->on_follower_receive(this->_entries) == -1) {
+            // the peer refuse to accept the content
+            _response->set_success(false);
+            _response->set_term(_node->_current_term);
+            return;
+        }
         _response->set_success(true);
         _response->set_term(_term);
 
@@ -2565,6 +2571,7 @@ void NodeImpl::handle_append_entries_request(brpc::Controller* cntl,
     FollowerStableClosure* c = new FollowerStableClosure(
             cntl, request, response, done_guard.release(),
             this, _current_term);
+    // peng: entries contains the received data (block wait)
     _log_manager->append_entries(&entries, c);
 
     // update configuration after _log_manager updated its memory status

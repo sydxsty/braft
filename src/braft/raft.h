@@ -265,6 +265,10 @@ public:
     // the very leader whom the follower starts to follow.
     // User can reset the node's information as it starts to follow some leader.
     virtual void on_start_following(const ::braft::LeaderChangeContext& ctx);
+
+    // Avoid blocking, called when the peer acts as a follower and receive append entries from leader
+    // wait until receiving the actual data
+    virtual bool on_follower_receive(int term, int index, const ::butil::IOBuf& data);
 };
 
 enum State {

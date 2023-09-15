@@ -441,6 +441,7 @@ void LogManager::append_entries(
     }
 
     done->_entries.swap(*entries);
+    // call FollowerStableClosure::run() (handle_append_entries_request)
     int ret = bthread::execution_queue_execute(_disk_queue, done);
     CHECK_EQ(0, ret) << "execq execute failed, ret: " << ret << " err: " << berror();
     wakeup_all_waiter(lck);

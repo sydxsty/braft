@@ -65,8 +65,9 @@ public:
         int64_t _first_log_index;
         IOMetric metric;
     private:
-    friend class LogManager;
-    friend class AppendBatcher;
+        friend class LogManager;
+        friend class AppendBatcher;
+        friend class FollowerStableClosure;
         std::vector<LogEntry*> _entries;
     };
 

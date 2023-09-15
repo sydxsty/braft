@@ -109,6 +109,7 @@ public:
     BRAFT_MOCK ~FSMCaller();
     int init(const FSMCallerOptions& options);
     int shutdown();
+    int on_follower_receive(const std::vector<LogEntry*>& entries);
     BRAFT_MOCK int on_committed(int64_t committed_index);
     BRAFT_MOCK int on_snapshot_load(LoadSnapshotClosure* done);
     BRAFT_MOCK int on_snapshot_save(SaveSnapshotClosure* done);

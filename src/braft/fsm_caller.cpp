@@ -550,6 +550,19 @@ void FSMCaller::join() {
     }
 }
 
+    int FSMCaller::on_follower_receive(const std::vector<LogEntry *> &entries) {
+        for (const auto& it: entries) {
+            if (it->type != ENTRY_TYPE_DATA) {
+                continue;
+            }
+            if (!_fsm->on_follower_receive((int)it->id.term, (int)it->id.index, it->data)) {
+                LOG(ERROR) << "Data with entries index " << it->id.index << " is corrupted.";
+                return -1;
+            }
+        }
+        return 0;
+    }
+
 IteratorImpl::IteratorImpl(StateMachine* sm, LogManager* lm,
                           std::vector<Closure*> *closure, 
                           int64_t first_closure_index,
